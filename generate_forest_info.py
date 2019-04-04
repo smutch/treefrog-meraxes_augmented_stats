@@ -13,7 +13,29 @@ __author__ = "Simon Mutch"
 __date__ = "2017-09-12"
 
 
-@delayed
+"""Calculate the counts for a single snapshot.
+
+Parameters
+----------
+fd : h5py.File
+    The input VELOCIraptor HDF5 file.
+
+group_name : str
+    The name of the HDF5 group for the corresponding snapshot.
+
+Returns
+-------
+counts : pandas.DataFrame
+    The forest IDs, along with the total number of halos and fof groups in each
+    forest.
+
+total_halos : int
+    The total number of halos at this snapshot.
+
+total_fofs : int
+    The total number of FOF groups in this snapshot.
+"""
+@delayed  # NOQA
 def calc_snap_counts(fd: h5.File, group_name: str):
     grp = fd[group_name]
 
