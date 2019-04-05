@@ -49,7 +49,22 @@ def calc_snap_counts(fd: h5.File, group_name: str):
     return counts, counts.halos.sum(), counts.fofs.sum()
 
 
-@click.command()
+"""Generate the forest info files required for Meraxes to do it's domain
+decomposition.
+
+Parameters
+----------
+fname_in : str
+    The VELOCIraptor unified tree file with forest IDs.
+
+fname_out : str
+    The output meraxes augmented stats filename.
+
+Notes
+-----
+This function provides a CLI interface via Click.
+"""
+@click.command()  # NOQA
 @click.argument("fname_in", type=click.Path(exists=True))
 @click.argument("fname_out", type=click.Path())
 def generate_forest_info(fname_in, fname_out):
