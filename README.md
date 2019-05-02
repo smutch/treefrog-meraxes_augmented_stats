@@ -1,6 +1,6 @@
 # Treefrog augmented stats for Meraxes
 
-**author:** SImon Mutch
+**author:** Simon Mutch
 
 ## generate_alist.py
 
@@ -8,15 +8,13 @@ Use this script to generate an expansion factor list from a Treefrog file.  It a
 
 ## generate_forest_info.py
 
-Generate the forest info files required for Meraxes to do it's domain decomposition.
+Use this script to generate the forest info files required for Meraxes to do it's domain decomposition.
 
-### Parameters
+Usage:
 
-**fname_in** : str
-    The VELOCIraptor unified tree file with forest IDs.
-
-**fname_out** : str
-    The output meraxes augmented stats filename.
+```sh
+generate_forest_info.py [OPTIONS] FNAME_IN FNAME_OUT
+```
 
 ### Notes
 
