@@ -27,30 +27,31 @@ __author__ = "Simon Mutch"
 __date__ = "2017-09-12"
 
 
-"""Calculate the counts for a single snapshot.
-
-Parameters
-----------
-fd : h5py.File
-    The input VELOCIraptor HDF5 file.
-
-group_name : str
-    The name of the HDF5 group for the corresponding snapshot.
-
-Returns
--------
-counts : pandas.DataFrame
-    The forest IDs, along with the total number of halos and fof groups in each
-    forest.
-
-total_halos : int
-    The total number of halos at this snapshot.
-
-total_fofs : int
-    The total number of FOF groups in this snapshot.
-"""
 @delayed  # NOQA
 def calc_snap_counts(fd: h5.File, group_name: str):
+    """Calculate the counts for a single snapshot.
+
+    Parameters
+    ----------
+    fd : h5py.File
+        The input VELOCIraptor HDF5 file.
+
+    group_name : str
+        The name of the HDF5 group for the corresponding snapshot.
+
+    Returns
+    -------
+    counts : pandas.DataFrame
+        The forest IDs, along with the total number of halos and fof groups in each
+        forest.
+
+    total_halos : int
+        The total number of halos at this snapshot.
+
+    total_fofs : int
+        The total number of FOF groups in this snapshot.
+    """
+
     grp = fd[group_name]
 
     halos = pd.DataFrame(dict(forest_id=grp["ForestID"][:],
@@ -63,25 +64,23 @@ def calc_snap_counts(fd: h5.File, group_name: str):
     return counts, counts.halos.sum(), counts.fofs.sum()
 
 
-"""Generate the forest info files required for Meraxes to do it's domain
-decomposition.
-
-Parameters
-----------
-fname_in : str
-    The VELOCIraptor unified tree file with forest IDs.
-
-fname_out : str
-    The output meraxes augmented stats filename.
-
-Notes
------
-This function provides a CLI interface via Click.
-"""
-@click.command()  # NOQA
-@click.argument("fname_in", type=click.Path(exists=True))
-@click.argument("fname_out", type=click.Path())
 def generate_forest_info(fname_in, fname_out):
+    """Generate the forest info files required for Meraxes to do it's domain
+    decomposition.
+
+    Parameters
+    ----------
+    fname_in : str
+        The VELOCIraptor unified tree file with forest IDs.
+
+    fname_out : str
+        The output meraxes augmented stats filename.
+
+    Notes
+    -----
+    This function is provided through a Click CLI interface.
+    """
+
     with h5.File(fname_in, "r") as fd:
         snap_groups = [k for k in fd.keys() if "Snap" in k]
 
@@ -113,5 +112,12 @@ def generate_forest_info(fname_in, fname_out):
                            data=counts.fofs_max.values.astype('i4'), **cds_kwargs)
 
 
+@click.command()  # NOQA
+@click.argument("fname_in", type=click.Path(exists=True))
+@click.argument("fname_out", type=click.Path())
+def cli(fname_in, fname_out):
+    generate_forest_info(fname_in, fname_out)
+
+
 if __name__ == '__main__':
-    generate_forest_info()
+    cli()
