@@ -2,24 +2,36 @@
 
 **author:** Simon Mutch
 
-## generate_alist.py
+## Installation
 
-Use this script to generate an expansion factor list from a Treefrog file.  It accepts one input argument - the path to the Treefrog file.
+```sh
+pip install --user git+https://github.com/smutch/treefrog-meraxes_augmented_stats
+```
 
-## generate_forest_info.py
+This will install 3 command line tools in your current python environment.
 
-Use this script to generate the forest info files required for Meraxes to do it's domain decomposition.
+## treefrog_gen_alist
+
+Use this to generate an expansion factor list from a Treefrog file.  It accepts one input argument - the path to the Treefrog file.
+
+## treefrog_gen_forestinfo
+
+Use this to generate the forest info files required for Meraxes to do it's domain decomposition.
 
 Usage:
 
 ```sh
-generate_forest_info.py [OPTIONS] FNAME_IN FNAME_OUT
+treefrog_gen_forestinfo [OPTIONS] FNAME_IN FNAME_OUT
 ```
 
-### Notes
+Note that this script will make use of multiple threads and/or processes.
 
-This function provides a CLI interface via Click.  The output file can be tested for basic validity using pytest:
+## treefrog_test_forestinfo
+
+Use this to do some simple sanity checks on the produced forest info file from `treefrog_gen_forestinfo`.
+
+Usage:
 
 ```sh
-pytest --augfile=<FNAME_OUT>
+treefrog_test_forestinfo FNAME_IN
 ```
