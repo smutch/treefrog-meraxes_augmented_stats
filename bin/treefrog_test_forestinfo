@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+pytest --augfile=$* --pyargs treefrog_meraxes_augmented_stats._tests
