@@ -1,18 +1,18 @@
 #!/usr/bin/env python
-# 
+
 # Generate a forest info file for Meraxes.
 # Copyright © 2019 Simon Mutch
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -22,9 +22,19 @@ import click
 import pandas as pd
 import dask.dataframe as df
 from dask import delayed
+import os
+from pathlib import Path
+import logging
+import coloredlogs
+from dask.diagnostics import ProgressBar
 
 __author__ = "Simon Mutch"
 __date__ = "2017-09-12"
+
+
+logger = logging.getLogger(Path(__file__).name.rstrip('.py'))
+coloredlogs.install(os.environ.get("LOGLEVEL", "INFO"))
+ProgressBar(minimum=1.0).register()
 
 
 @delayed  # NOQA
@@ -82,6 +92,8 @@ def generate_forest_info(fname_in, fname_out):
     """
 
     with h5.File(fname_in, "r") as fd:
+        logger.info("Calculating statistics...")
+
         snap_groups = [k for k in fd.keys() if "Snap" in k]
 
         res = [calc_snap_counts(fd, group_name) for group_name in snap_groups]
@@ -93,6 +105,8 @@ def generate_forest_info(fname_in, fname_out):
         n_fofs = np.array([r[2].compute() for r in res])
 
     with h5.File(fname_out, "w") as fd:
+        logger.info("Writing output...")
+
         cds_kwargs = dict(compression=7, shuffle=True, chunks=True)
         fd.create_dataset("n_halos", data=n_halos, **cds_kwargs)
         fd.create_dataset("n_fof_groups", data=n_fofs, **cds_kwargs)
