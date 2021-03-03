@@ -48,6 +48,7 @@ def generate_alist(fname):
 
         alist = np.zeros(n_snaps)
         for snap in range(n_snaps):
+            print(snap)
             alist[snap] = fd[f"Snap_{snap:03d}"].attrs["scalefactor"]
 
     with open("a_list.txt", "w") as fd:
