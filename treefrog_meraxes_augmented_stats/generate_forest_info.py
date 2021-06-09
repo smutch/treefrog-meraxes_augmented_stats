@@ -27,6 +27,7 @@ from pathlib import Path
 import logging
 import coloredlogs
 from dask.diagnostics import ProgressBar
+from tqdm import tqdm
 
 __author__ = "Simon Mutch"
 __date__ = "2017-09-12"
@@ -92,7 +93,7 @@ def generate_forest_info(fname_in, fname_out):
     """
 
     with h5.File(fname_in, "r") as fd:
-        logger.info("Calculating statistics...")
+        logger.info("Calculating per-forest statistics...")
 
         snap_groups = [k for k in fd.keys() if "Snap" in k]
 
@@ -105,7 +106,7 @@ def generate_forest_info(fname_in, fname_out):
         n_fofs = np.array([r[2].compute() for r in res])
 
     with h5.File(fname_out, "w") as fd:
-        logger.info("Writing output...")
+        logger.info("Writing per-forest output...")
 
         cds_kwargs = dict(compression=7, shuffle=True, chunks=True)
         fd.create_dataset("n_halos", data=n_halos, **cds_kwargs)
@@ -124,6 +125,22 @@ def generate_forest_info(fname_in, fname_out):
                            data=counts.halos_max.values.astype('i4'), **cds_kwargs)
         grp.create_dataset("max_contemporaneous_fof_groups",
                            data=counts.fofs_max.values.astype('i4'), **cds_kwargs)
+
+
+        forest_ids = pd.DataFrame(index=counts.index.values, dtype=np.int64)
+        forest_ids['snap'] = 0
+
+        grp = fd.create_group("snapshots")
+        logger.info("Calculating and writing cumulative forest sizes with snapshot...")
+        with h5.File(fname_in, "r") as fin:
+            n_snaps = sum((1 for k in fin.keys() if "Snap" in k))
+            for snap in tqdm(range(n_snaps)):
+                snap_ids = pd.Series(fin[f"Snap_{snap:03d}"]["ForestID"][:], dtype=np.uint64)
+                if snap_ids.shape[0] > 0:
+                    counts = snap_ids.groupby(snap_ids).count()
+                    forest_ids["snap"] += counts.reindex(forest_ids.index, fill_value=0)
+                grp.create_dataset(f"Snap{snap:03d}", data=forest_ids.snap.values.astype('i4'), **cds_kwargs)
+
 
 
 @click.command()  # NOQA
